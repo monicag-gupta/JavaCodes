@@ -1,0 +1,12 @@
+Create a Web Site to support internet based e-mailer system. Use the technology of Servlets, HTML, MySQL and JSP only. The website should have at least:
+1) Home Page with links like About us, Register, and Login as registered user.
+2) Register Page : the page takes in information and creates a record in the MySQL database (in table named users) 
+3) Login Page : Only authenticated users (check from MySQL database -> users table) can log in.
+4) Welcome Page: Once logged in, we can see this page. It contains link to Inbox, compose, draft, delete (from inbox or draft), logout pages
+5) inbox : Once logged in, we can see this page. The page contains mails sent from other users. Tabular way of representation.
+6) compose : Once logged in, we can see this page. The page contains form so that mails can be sent to other users.
+7) draft : Once logged in, we can see this page. The page contains form so that mails can be saved as a draft mail.
+8) delete : Once logged in, we can see this page. The page contains links to all mails related to us, which was lying in the inbox or draft, which can be deleted.
+9) Logout: Log out page removes the session maintained, and has links to home page. 
+
+Add any more information as per your need.
