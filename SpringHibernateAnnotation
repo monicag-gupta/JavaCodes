@@ -1,0 +1,146 @@
+Project: SpringHbmAnno
+Add Package: com.hbm
+Add classes in com.hbm:
+Employee
+EmployeeDao
+Test
+AppConfig
+
+
+Employee.java
+
+package com.hbm;
+import javax.persistence.*;
+import org.springframework.stereotype.Component;
+@Component
+@Entity
+public class Employee {
+  @Id
+	private int id;
+	private String name;
+	private float salary;
+	public Employee() {}
+	public Employee(int id, String name, float salary) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.salary = salary;}
+	public int getId() {	return id;	}
+	public void setId(int id) {	this.id = id;	}
+	public String getName() {	return name;	}
+	public void setName(String name) {	this.name = name;	}
+	public float getSalary() {	return salary;	}
+	public void setSalary(float salary) {	this.salary = salary;	}
+	public String toString(){	return id+" "+name+" "+salary;	}
+}
+
+
+EmployeeDao.java
+
+package com.hbm;
+import java.util.*;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.hibernate5.HibernateTemplate;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;  
+@Component("edao")
+public class EmployeeDao {  
+	@Autowired
+    private SessionFactory template;
+ 	public void setTemplate(SessionFactory template) {  this.template = template;  	}  
+	@Transactional(readOnly = false)
+	public void saveEmployee(Employee e){  	template.getCurrentSession().persist(e); 	}  
+	@Transactional(readOnly = false)  
+	public void updateEmployee(Employee e){  	template.getCurrentSession().update(e); }  
+	@Transactional(readOnly = false)  
+	public void deleteEmployee(Employee e){  template.getCurrentSession().delete(e);  }  
+	@Transactional(readOnly = false)
+	public Employee getById(int id){  Employee e=(Employee)template.getCurrentSession().get(Employee.class,id);	return e; 	}  
+	@Transactional(readOnly = false) 
+	public List<Employee> getEmployees(){  
+		@SuppressWarnings("unchecked")
+		List<Employee> list = template.getCurrentSession().createQuery("from Employee").getResultList();
+		return list; 	}  }
+
+
+AppConfig.java
+
+package com.hbm;
+import java.util.Properties;
+import javax.sql.DataSource;
+import org.hibernate.SessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.*;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.orm.hibernate5.HibernateTransactionManager;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+@Configuration
+@EnableTransactionManagement
+@ComponentScan({ "com.hbm" })
+public class AppConfig {
+    @Bean
+    public LocalSessionFactoryBean sessionFactory() {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(dataSource());
+        sessionFactory.setPackagesToScan(new String[] { "com.hbm" });
+        sessionFactory.setHibernateProperties(hibernateProperties());
+        return sessionFactory;
+     }
+    @Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
+		driverManagerDataSource.setUrl("jdbc:mysql://localhost:3306/javadb");
+		driverManagerDataSource.setUsername("root");
+		driverManagerDataSource.setPassword("");
+		driverManagerDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        return driverManagerDataSource;
+    }
+    private Properties hibernateProperties() {
+        Properties properties = new Properties();
+        properties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5Dialect");
+        properties.put("hibernate.show_sql", "true");
+       // properties.put("hibernate.format_sql", "false");
+        return properties;        
+    }
+    @Bean
+    @Autowired
+    public HibernateTransactionManager transactionManager(SessionFactory s) {
+       HibernateTransactionManager txManager = new HibernateTransactionManager();
+       txManager.setSessionFactory(s);
+       return txManager;
+    }
+}
+
+
+Test.java
+
+package com.hbm;
+import java.util.List;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class Test {  
+public static void main(String[] args) {  
+	    AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		EmployeeDao dao = (EmployeeDao) context.getBean("edao");
+
+		//Employee e = new Employee(101, "Ishu1", 50000); dao.saveEmployee(e);
+		//Employee e = new Employee(102, "Ishu2", 350000); dao.saveEmployee(e);
+		//Employee e = new Employee(103, "Ishu3", 3500); dao.saveEmployee(e);
+		
+		//Employee e = new Employee(102, "Ishu4", 550000); dao.updateEmployee(e);
+		
+		//Employee e=new Employee(); e.setId(103); dao.deleteEmployee(e);
+			
+		  List<Employee> employeeList = dao.getEmployees();
+		  for(Employee ee : employeeList) {System.out.println(ee);} 
+		  context.close();
+    }  
+} 
+
+
+
+
