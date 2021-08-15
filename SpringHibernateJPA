@@ -1,0 +1,144 @@
+create table in the database 
+Create SpringJPAPrj1 as Java Project
+Package com.jpa
+applicationContext.xml 
+It contains information of DataSource, SessionFactory etc.
+Employee.java
+It is the persistent class
+EmployeeDao.java
+It is the dao class that uses HibernateTemplate.
+InsertTest.java 
+It calls methods of EmployeeDao class.
+
+
+
+
+Drop table EMPLOYEE;
+Create table Employee(id int not null, name varchar(255), salary int, Primary Key(id));
+
+
+Employee.java
+package com.jpa;
+import javax.persistence.*;
+@Entity
+public class Employee {
+  @Id
+	private int id;
+	private String name;
+	private float salary;
+	public Employee() {}
+	public Employee(int id, String name, float salary) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.salary = salary;}
+	public int getId() {	return id;	}
+	public void setId(int id) {	this.id = id;	}
+	public String getName() {	return name;	}
+	public void setName(String name) {	this.name = name;	}
+	public float getSalary() {	return salary;	}
+	public void setSalary(float salary) {	this.salary = salary;	}
+	public String toString(){	return id+" "+name+" "+salary;	}
+}
+
+
+EmployeeDao.java
+
+package com.jpa;
+import java.util.*;
+import org.springframework.orm.hibernate5.HibernateTemplate;
+import org.springframework.transaction.annotation.Transactional;  
+public class EmployeeDao {  
+	HibernateTemplate template;
+	public void setTemplate(HibernateTemplate template) {  this.template = template;  	}  
+	@Transactional(readOnly = false)
+	public void saveEmployee(Employee e){  	template.save(e); 	}  
+	@Transactional(readOnly = false)  
+	public void updateEmployee(Employee e){  	template.update(e); }  
+	@Transactional(readOnly = false)  
+	public void deleteEmployee(Employee e){  template.delete(e);  }  
+	@Transactional(readOnly = false)
+	public Employee getById(int id){  Employee e=(Employee)template.get(Employee.class,id);	return e; 	}  
+	@Transactional(readOnly = false) 
+	public List<Employee> getEmployees(){  
+		List<Employee> list=new ArrayList<Employee>();  
+		list=template.loadAll(Employee.class);  
+		return list; 	}  }
+
+
+
+applicationContext.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:p="http://www.springframework.org/schema/p"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd"
+xmlns:tx="http://www.springframework.org/schema/tx">
+<bean id="dataSource"
+class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+<property name="driverClassName"
+value="com.mysql.jdbc.Driver" />
+<property name="url"
+value="jdbc:mysql://localhost:3306/javadb" />
+<property name="username" value="root" />
+<property name="password" value="" />
+</bean>
+<bean id="mysessionFactory"
+class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+<property name="dataSource" ref="dataSource"></property>
+<property name="annotatedClasses"> 
+               <list> 
+               <value>com.hibernate.Employee</value> 
+</list>
+ </property>
+
+<property name="hibernateProperties">
+<props>
+<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+<prop key="hibernate.hbm2ddl.auto">update</prop>
+<prop key="hibernate.show_sql">true</prop>
+</props>
+</property>
+</bean>
+<bean id="mytemplate"
+class="org.springframework.orm.hibernate5.HibernateTemplate">
+<property name="sessionFactory" ref="mysessionFactory"></property>
+</bean>
+<bean id="transactionManager"
+class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+<property name="sessionFactory" ref="mysessionFactory" />
+</bean>
+<tx:annotation-driven
+transaction-manager="transactionManager" />
+<bean id="d" class="com.hibernate.EmployeeDao">
+<property name="template" ref="mytemplate"></property>
+</bean>
+</beans>
+
+
+
+Test.java
+
+package com.jpa;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+public class Test {  
+public static void main(String[] args) {  
+ 	         ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml");
+		EmployeeDao dao = (EmployeeDao) ctx.getBean("d");
+
+		//Employee e = new Employee(101, "Ishu1", 50000); dao.saveEmployee(e);
+		//Employee e = new Employee(102, "Ishu2", 350000); dao.saveEmployee(e);
+		//Employee e = new Employee(103, "Ishu3", 3500); dao.saveEmployee(e);
+		
+		//Employee e = new Employee(102, "Ishu4", 550000); dao.updateEmployee(e);
+		
+		//Employee e=new Employee(); e.setId(103); dao.deleteEmployee(e);
+			
+		  List<Employee> employeeList = dao.getEmployees();
+		  for(Employee e : employeeList) {System.out.println(e);}    
+    }  
+} 
+
+
