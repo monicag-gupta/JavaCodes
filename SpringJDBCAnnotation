@@ -1,0 +1,107 @@
+Project: SpringAnnoJDBC
+Add SpringLib, mySqlConnector
+Package: com.jdbc
+Classes:
+Employee
+EmployeeDao
+Test
+AppConfig
+
+
+Employee.java
+
+package com.jdbc;
+import org.springframework.stereotype.Component;
+@Component
+public class Employee {
+	private int id;
+	private String name;
+	private float salary;
+	public Employee() {	}
+	public Employee(int id, String name, float salary) {
+		this.id = id;
+		this.name = name;
+		this.salary = salary;
+	}
+	public int getId() {		return id;	}
+	public void setId(int id) {		this.id = id;	}
+	public String getName() {		return name;	}
+	public void setName(String name) {		this.name = name;	}
+	public float getSalary() {		return salary;	}
+	public void setSalary(float salary) {		this.salary = salary;	}
+}
+
+
+
+EmployeeDao.java
+
+package com.jdbc;
+import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Component;
+@Component("edao")
+public class EmployeeDao {
+	private JdbcTemplate jdbcTemplate;
+    @Autowired
+	public EmployeeDao(DataSource dataSource) {
+		this.jdbcTemplate = new JdbcTemplate(dataSource);	}
+	public int saveEmployee(Employee e) {
+		String query = "insert into employee values('" + e.getId() + "','" + e.getName() + "','" + e.getSalary() + "')";
+		return jdbcTemplate.update(query);		}
+	public int updateEmployee(Employee e) {
+		String query = "update employee set name='" + e.getName() + "',salary='" + e.getSalary() + "' where id='"
+				+ e.getId() + "' ";
+		return jdbcTemplate.update(query);		}
+	public int deleteEmployee(Employee e) {
+		String query = "delete from employee where id='" + e.getId() + "' ";
+		return jdbcTemplate.update(query);
+	}	}
+
+
+
+AppConfig.java
+
+package com.jdbc;
+import javax.sql.DataSource;
+import org.springframework.context.annotation.*;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+@Configuration
+@ComponentScan("com.jdbc")
+public class AppConfig {
+	@Bean
+	DataSource dataSource() {
+		DriverManagerDataSource driverManagerDataSource = new DriverManagerDataSource();
+		driverManagerDataSource.setUrl("jdbc:mysql://localhost:3306/javadb");
+		driverManagerDataSource.setUsername("root");
+		driverManagerDataSource.setPassword("");
+		driverManagerDataSource.setDriverClassName("com.mysql.jdbc.Driver");
+		return driverManagerDataSource;
+	}
+}
+
+
+Test.java
+
+package com.jdbc;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+public class Test {
+	public static void main(String[] args) {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+		EmployeeDao dao=(EmployeeDao)context.getBean("edao");
+		//int status=dao.saveEmployee(new Employee(101,"Abc",50000));
+        int status=dao.saveEmployee(new Employee(102,"Abc",5000));
+		System.out.println(status);
+		/*int status=dao.updateEmployee(new Employee(102,"AAA",35000));
+		System.out.println(status);		*/
+		/* int status=dao.saveEmployee(new Employee(103,"Tanvi",50000));
+		System.out.println(status);*/
+     /*   Employee e=new Employee();
+		e.setId(103);
+		int status=dao.deleteEmployee(e);
+		System.out.println(status);       */
+		context.close();
+	}
+}
+
+
