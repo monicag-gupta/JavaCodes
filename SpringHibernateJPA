@@ -90,7 +90,7 @@ class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
 <property name="dataSource" ref="dataSource"></property>
 <property name="annotatedClasses"> 
                <list> 
-               <value>com.hibernate.Employee</value> 
+               <value>com.jpa.Employee</value> 
 </list>
  </property>
 
@@ -112,7 +112,7 @@ class="org.springframework.orm.hibernate5.HibernateTransactionManager">
 </bean>
 <tx:annotation-driven
 transaction-manager="transactionManager" />
-<bean id="d" class="com.hibernate.EmployeeDao">
+<bean id="d" class="com.jpa.EmployeeDao">
 <property name="template" ref="mytemplate"></property>
 </bean>
 </beans>
