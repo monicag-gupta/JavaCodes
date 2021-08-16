@@ -1,4 +1,5 @@
 Project: SpringHbmAnno
+Add SpringLib, HibernateLib (with mySQLConnector)
 Add Package: com.hbm
 Add classes in com.hbm:
 Employee
