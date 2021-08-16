@@ -1,0 +1,117 @@
+Project:JDBCSpringCRUD
+
+
+create table employee(
+id int,name varchar(100),salary int);
+
+
+applicationContext.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+xmlns="http://www.springframework.org/schema/beans"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:p="http://www.springframework.org/schema/p"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    <bean id="ds" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+       <property name="driverClassName" value="com.mysql.jdbc.Driver" />
+       <property name="url" value="jdbc:mysql://localhost:3306/javadb" />
+       <property name="username" value="root" />
+       <property name="password" value="" />
+   </bean>
+  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+       <property name="dataSource" ref="ds"></property>
+   </bean>
+   <bean id="edao" class="com.jdbc.EmployeeDao">
+       <property name="jdbcTemplate" ref="jdbcTemplate"></property>
+   </bean>
+</beans>
+
+Employee.java
+package com.jdbc;
+public class Employee {
+private int id;
+private String name;
+private float salary;
+public Employee() {	}
+public Employee(int id, String name, float salary) {
+this.id = id;
+this.name = name;
+this.salary = salary;	}
+public int getId() {	return id;	}
+public void setId(int id) {	this.id = id;	}
+public String getName() {	return name;	}
+public void setName(String name) {	this.name = name;	}
+public float getSalary() {	return salary;	}
+public void setSalary(float salary) {	this.salary = salary;	}
+public String toString() {	return id + " " + name + " " + salary;	  }
+}
+
+
+EmployeeDao.java
+
+package com.jdbc;
+import org.springframework.jdbc.core.JdbcTemplate;
+public class EmployeeDao {
+	private JdbcTemplate jdbcTemplate;
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+	public int saveEmployee(Employee e) {
+		String query = "insert into employee values('" + e.getId() + "','" + e.getName() + "','" + e.getSalary() + "')";
+		return jdbcTemplate.update(query);
+	}
+	public int updateEmployee(Employee e) {
+		String query = "update employee set name='" + e.getName() + "',salary='" + e.getSalary() + "' where id='"
+				+ e.getId() + "' ";
+		return jdbcTemplate.update(query);
+	}
+	public int deleteEmployee(Employee e) {
+		String query = "delete from employee where id='" + e.getId() + "' ";
+		return jdbcTemplate.update(query);
+	}
+public List<Employee> getAllEmployees(){
+return jdbcTemplate.query("select * from employee",new ResultSetExtractor<List<Employee>>(){
+@Override
+public List<Employee> extractData(ResultSet rs) throws SQLException, DataAccessException {
+List<Employee> list=new ArrayList<Employee>();
+while(rs.next()){
+Employee e=new Employee();
+e.setId(rs.getInt(1));
+e.setName(rs.getString(2));
+e.setSalary(rs.getInt(3));
+list.add(e);	}
+return list;
+}});  
+}
+
+
+Test.java
+
+package com.jdbc;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+public class Test {
+	public static void main(String[] args) {
+		ApplicationContext ctx=new ClassPathXmlApplicationContext("applicationContext.xml");
+		EmployeeDao dao=(EmployeeDao)ctx.getBean("edao");
+		/*int status=dao.saveEmployee(new Employee(101,"Abc",50000));
+        //int status=dao.saveEmployee(new Employee(102,"Abc",5000));
+		System.out.println(status);*/
+		/*int status=dao.updateEmployee(new Employee(102,"AAA",35000));
+		System.out.println(status);		*/
+		/* int status=dao.saveEmployee(new Employee(103,"Tanvi",50000));
+		System.out.println(status);*/
+     /*   Employee e=new Employee();
+		e.setId(103);
+		int status=dao.deleteEmployee(e);
+		System.out.println(status);       */
+    List<Employee> list=dao.getAllEmployees();
+		for(Employee e:list)
+			System.out.println(e);
+
+	}
+}
+
+}
+
