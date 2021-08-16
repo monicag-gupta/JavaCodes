@@ -1,0 +1,220 @@
+Design a Dynamic web project :
+SpringSecurityLoginExample
+Add the packages and classes as
+com.springsecure package
+AppConfig.java
+MvcWebApplicationInitializer.java
+SecurityWebApplicationInitializer.java
+WebSecurityConfig.java
+com.springsecure.controller package
+HomeController.java
+Add the folder views in WEB-INF. Add index.jsp there
+Add the jars in the lib folder..
+jstl-1.2.jar , spring-aop-5.2.6.RELEASE.jar, , spring-beans-5.2.8.RELEASE.jar, spring-context-5.2.6.RELEASE.jar, spring-core-5.2.8.RELEASE.jar, spring-expression-5.2.6.RELEASE.jar, spring-jcl-5.2.8.RELEASE.jar, spring-security-config-5.0.0.RELEASE.jar, spring-security-core-5.3.3.RELEASE.jar, spring-security-web-5.3.3.RELEASE.jar, spring-web-5.2.8.RELEASE.jar, spring-webmvc-5.0.2.RELEASE.jar
+
+Download jars :
+https://jar-download.com/artifacts/org.springframework.security
+Extract the zip file and put in a folder named SpringSecurityLib
+Download spring-security-config-5.0.0.RELEASE jar add to the folder
+https://mvnrepository.com/artifact/org.springframework.security/spring-security-config/5.0.0.RELEASE
+Download jstl jar file add to the folder
+http://www.java2s.com/Code/Jar/j/Downloadjstl12jar.htm
+spring-webmvc-5.0.2.RELEASE jar download add to the folder
+https://mvnrepository.com/artifact/org.springframework/spring-webmvc/5.0.2.RELEASE
+
+
+AppConfig.java
+
+package com.springsecure;
+import org.springframework.context.annotation.Bean;  
+import org.springframework.context.annotation.ComponentScan;  
+import org.springframework.context.annotation.Configuration;  
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;  
+import org.springframework.web.servlet.view.InternalResourceViewResolver;  
+import org.springframework.web.servlet.view.JstlView;  
+@EnableWebMvc  
+@Configuration  
+@ComponentScan({ "com.springsecure.controller.*" })  
+public class AppConfig {  
+    @Bean  
+    public InternalResourceViewResolver viewResolver() {  
+        InternalResourceViewResolver viewResolver  
+                          = new InternalResourceViewResolver();  
+        viewResolver.setViewClass(JstlView.class);  
+        viewResolver.setPrefix("/WEB-INF/views/");  
+        viewResolver.setSuffix(".jsp");  
+        return viewResolver;  
+    }  	} 
+
+
+MvcWebApplicationInitializer.java
+
+package com.springsecure;
+import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;  
+public class MvcWebApplicationInitializer extends  
+        AbstractAnnotationConfigDispatcherServletInitializer {  
+    @Override  
+    protected Class<?>[] getRootConfigClasses() {  
+        return new Class[] { WebSecurityConfig.class };  
+    }  
+    @Override  
+    protected Class<?>[] getServletConfigClasses() {  
+ 		return null;  
+    }  
+    @Override  
+    protected String[] getServletMappings() {  
+        return new String[] { "/" };  
+    }  
+} 
+
+
+SecurityWebApplicationInitializer.java
+
+package com.springsecure;
+import org.springframework.security.web.context.*;  
+public class SecurityWebApplicationInitializer  extends AbstractSecurityWebApplicationInitializer {  
+  
+} 
+
+
+WebSecurityConfig.java
+
+package com.springsecure;
+import org.springframework.context.annotation.*;   import org.springframework.security.config.annotation.web.builders.HttpSecurity;  	import org.springframework.security.config.annotation.web.configuration.*;  import org.springframework.security.core.userdetails.User;  	import org.springframework.security.core.userdetails.UserDetailsService;  import org.springframework.security.provisioning.InMemoryUserDetailsManager;  	import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;  
+@EnableWebSecurity  
+@ComponentScan("com.springsecure")  
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {  
+      @Bean  
+  public UserDetailsService userDetailsService() {  
+      InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();  
+      manager.createUser(User.withDefaultPasswordEncoder()  
+      .username("admin").password("java").roles("ADMIN").build());  
+      return manager;  	  }  
+      @Override  
+  protected void configure(HttpSecurity http) throws Exception {  
+       http                              
+      .authorizeRequests()  
+          .anyRequest().hasRole("ADMIN")  
+          .and().formLogin().and()  
+      .httpBasic()  
+      .and()  
+      .logout()  
+      .logoutUrl("/j_spring_security_logout")  
+      .logoutSuccessUrl("/")  	      ;  
+  }  	} 
+
+
+HomeController.java
+
+package com.springsecure.controller;
+import javax.servlet.http.HttpServletRequest;  
+import javax.servlet.http.HttpServletResponse;  
+import org.springframework.security.core.Authentication;  
+import org.springframework.security.core.context.SecurityContextHolder;  
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;  
+import org.springframework.stereotype.Controller;  
+import org.springframework.web.bind.annotation.RequestMapping;  
+import org.springframework.web.bind.annotation.RequestMethod;  
+@Controller  
+public class HomeController {  
+    @RequestMapping(value = "/", method = RequestMethod.GET)  
+    public String index() {  
+        return "index";  	 }  
+    @RequestMapping(value="/logout", method=RequestMethod.GET)  
+    public String logoutPage(HttpServletRequest request, HttpServletResponse response) {  
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();  
+        if (auth != null){      
+           new SecurityContextLogoutHandler().logout(request, response, auth);  	 }  
+         return "redirect:/";  
+     }  	} 
+
+
+
+index.jsp
+
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"   
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ 	<head>
+ 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+ 		<title>Home</title>
+ 	</head>
+ 	<body>
+		<h3>Hello ${pageContext.request.userPrincipal.name},</h3>
+ 		<h4>Welcome to The Web Site!</h4>
+		<a href="<c:url value='/logout' />">Click here to logout</a>
+ 	</body>
+</html>
+
+
+
+
+
+
+
+Pom.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.9</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.springmvc</groupId>
+	<artifactId>SpringSecurity</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>SpringSecurity</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+
