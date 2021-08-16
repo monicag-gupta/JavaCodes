@@ -1,0 +1,79 @@
+Create a Maven Project from eclipse as follows:
+Simple Maven Project with:
+groupId: com.myspringproject
+artifactId: SBHelloWorld
+Name: SBHelloWorld
+Edit Pom.xml Add the contents 
+Create the Java class HelloWorld.java under com.hello package
+Run the HelloWorld.java as Java Application
+
+
+
+HelloWorld.java
+package com.hello;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+@RestController
+@EnableAutoConfiguration
+public class HelloWorld {
+    @RequestMapping("/")
+    String hello() {
+        return "Hello World! Java Spring Boot Project";
+    }
+    public static void main(String[] args) throws Exception {
+        SpringApplication.run(HelloWorld.class, args);
+    }
+}
+
+
+
+
+pom.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.9</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.springmvc</groupId>
+	<artifactId>springBoot2MVC</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>springBoot2MVC</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+Run the file as Maven build: clean install
+Then run HelloWorld as Java Application
