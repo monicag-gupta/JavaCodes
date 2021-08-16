@@ -1,5 +1,6 @@
 create table in the database 
 Create SpringJPAPrj1 as Java Project
+Add SpringLib, HibernateLib (with mySqlConnector.jar)
 Package com.jpa
 applicationContext.xml 
 It contains information of DataSource, SessionFactory etc.
