@@ -115,3 +115,18 @@ Web.xml
  </web-app>
 
 
+
+index.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+<a href="admissionForm.html ">welcome page</a>
+</body>
+</html>
+
+
+
