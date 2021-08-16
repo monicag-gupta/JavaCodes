@@ -1,0 +1,209 @@
+Create a Spring-Starter-Project Project: SpringBootTestPrj with package: com.hello and dependency : Spring-Web
+We get created SpringBootTestApplication.java in package com.hello
+Create the model class as Employee.java in package com.hello.model
+Create the Controller class as TestController.java in com.hello.controllers
+Code, Run and Check the Output
+Create the Test class in src/test/java as SpringBootHelloWorldTests.java in com.hello.test
+Next extend the SpringBootHelloWorldTests.java and write the test case for the TestController as: TestWebApp.java
+Run this TestWebApp class as a JUnit test case.
+
+
+
+pom.xml
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.4.9</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>com.springmvc</groupId>
+	<artifactId>springBoot-test</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>springBoot-test</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>11</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>junit</groupId>
+					<artifactId>junit</artifactId>
+				</exclusion>
+			</exclusions>
+
+		</dependency>
+
+
+		<!-- junit 5 -->
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
+
+
+
+SpringBootTestApplication.java
+
+package com.hello;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringBootTestApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(SpringBootTestApplication.class, args);
+	}
+
+}
+
+
+Employee.java
+
+package com.hello.model;
+public class Employee {
+	private String empId;
+	private String name;
+	private String designation;
+	private double salary;
+	public Employee() { }
+	public String getName() {	return name;	}
+	public void setName(String name) {	this.name = name;	}
+	public String getDesignation() {		return designation;	}
+	public void setDesignation(String designation) {		this.designation = designation;		}
+	public double getSalary() {	return salary;		}
+	public void setSalary(double salary) {	this.salary = salary;	}
+	public String getEmpId() {	return empId;	}
+	public void setEmpId(String empId) {	this.empId = empId;	}
+}
+
+
+
+TestController.java
+
+package com.hello.controllers;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+import com.hello.model.Employee;
+@RestController
+@EnableAutoConfiguration
+public class TestController {
+	@RequestMapping(value = "/employee", method = RequestMethod.GET)
+	public Employee firstPage() {
+		Employee emp = new Employee();
+		emp.setName("emp1");
+		emp.setDesignation("manager");
+		emp.setEmpId("1");
+		emp.setSalary(3000);
+		return emp;
+	}
+}
+
+
+
+Compile and the run the SpringBootHelloWorldApplication.java as a Java application.
+Go to localhost:8080/employee
+{"empId":"1","name":"emp1","designation":"manager","salary":3000.0}
+
+
+In the package: src/test/java:
+Next we write JUnit test cases for the TestController.
+Define the SpringBootHelloWorldTests.java  and TestWebApp.java
+The annotation works by creating the ApplicationContext used in your tests via SpringApplication.
+
+
+
+SpringBootHelloWorldTests.java
+
+package com.hello.test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
+public class SpringBootHelloWorldTests {
+	@Test
+	public void contextLoads() {
+	}
+
+}
+
+
+
+TestWebApp.java
+
+package com.hello.test;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;	
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;	
+import org.springframework.web.context.WebApplicationContext;
+public class TestWebApp extends SpringBootHelloWorldTests {
+	@Autowired
+	private WebApplicationContext webApplicationContext;
+	private MockMvc mockMvc;
+	@BeforeEach
+	public void setup() {   mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();  }
+	@Test
+	public void testEmployee() throws Exception {
+		mockMvc.perform(get("/employee")).andExpect(status().isOk())	.andExpect(content().contentType("application/json"))
+	.andExpect(jsonPath("$.name").value("emp1")).andExpect(jsonPath("$.designation").value("manager"))
+   .andExpect(jsonPath("$.empId").value("1")).andExpect(jsonPath("$.salary").value(3000));
+	}	}
+
+
+Run this TestWebApp class as a JUnit test case.
+
+We can see the test is a success.
+
+
+
