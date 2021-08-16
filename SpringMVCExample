@@ -72,7 +72,7 @@ AdmissionForm.jsp
 <html>
 <body>
 <h1> FORM FOR COMPANY</h1>
-<form action="/MVCSpring2/submitAdmissionForm.html" method="post">
+<form action="submitAdmissionForm.html" method="post">
 <p>
 Candidate's Name : <input type="text" name="candidateName" />
 </p>
