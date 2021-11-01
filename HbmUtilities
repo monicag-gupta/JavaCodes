@@ -1,0 +1,86 @@
+hibernate.cfg.xml
+
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC   "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory> <!-- Database connection settings -->
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="connection.url">jdbc:mysql://localhost:3306/javadb</property>
+        <property name="connection.username">root</property>
+        <property name="connection.password"></property>
+        <!-- JDBC connection pool (use the built-in) -->
+        <property name="connection.pool_size">5</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect
+</property><!-- SQL dialect -->
+        <!-- Disable the second-level cache  -->
+        <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+        <property name="show_sql">true</property> <!-- Echo all executed SQL to stdout -->
+ 	       <property name="hbm2ddl.auto">create</property>
+       <!-- Mention here all the model classes along with their package name -->
+		<mapping class="com.hibernate.Student"/>
+    </session-factory>
+</hibernate-configuration>
+
+
+Package:com.hibernate
+
+HibernateUtil.java
+
+package com.hibernate;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+public class HibernateUtil {
+ final static StandardServiceRegistry registry = new StandardServiceRegistryBuilder().configure().build();
+    private static SessionFactory sessionFactory=null;
+    private static SessionFactory buildSessionFactory() {
+        try {            
+            sessionFactory = new MetadataSources( registry ).buildMetadata().buildSessionFactory();
+            return sessionFactory;        }
+        catch (Exception e) {
+             StandardServiceRegistryBuilder.destroy( registry );
+            throw new ExceptionInInitializerError(e);        }
+    }     
+    public static SessionFactory getSessionFactory() {
+        if(sessionFactory==null){
+            buildSessionFactory();
+        }        return sessionFactory;
+    }    }
+    
+    
+    
+    
+    
+HibernateUtil.java without cfg.xml file.    
+    
+package com.hibernate;
+import java.util.Properties;import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.*; import org.hibernate.service.ServiceRegistry;
+public class HibernateUtil {
+	private static SessionFactory sessionFactory;
+	public static SessionFactory getSessionFactory() {
+		if (sessionFactory == null) {
+			try {
+				Configuration configuration = new Configuration();
+				Properties settings = new Properties();
+				settings.put(Environment.DRIVER, "com.mysql.jdbc.Driver");
+				settings.put(Environment.URL, "jdbc:mysql://localhost:3306/javadb");
+				settings.put(Environment.USER, "root");
+				settings.put(Environment.PASS, "");
+				settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL5Dialect");
+				settings.put(Environment.SHOW_SQL, "true");
+				settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
+				settings.put(Environment.HBM2DDL_AUTO, "update");
+				configuration.setProperties(settings);
+				configuration.addAnnotatedClass(Student.class);
+				ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+						.applySettings(configuration.getProperties()).build();
+				sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+			} catch (Exception e) {	e.printStackTrace(); }
+		} return sessionFactory;
+	}	}
+
+
